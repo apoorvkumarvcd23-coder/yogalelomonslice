@@ -197,11 +197,38 @@
     transition: background 1.6s var(--breath), transform 1.6s var(--breath), border-color 1.6s var(--breath), box-shadow 1.6s var(--breath);
     position:relative; overflow:hidden;
   }
-  .pill:hover{--bg:rgba(192,133,102,.12); border-color:rgba(192,133,102,.4); transform:translateY(-1px); box-shadow:0 12px 30px -10px #c0856644}
+  .pill:hover{--bg:rgba(192,133,102,.12); border-color:rgba(192,133,102,.4); transform:translateY(-2px); box-shadow:0 16px 36px -10px #c0856655}
+  .pill:active{transform:translateY(0) scale(.97); transition-duration:.4s}
+  .pill:focus-visible{outline:none; box-shadow:0 0 0 2px rgba(232,217,185,.15), 0 0 0 4px rgba(192,133,102,.45)}
   .pill.primary{background:linear-gradient(160deg, var(--terracotta), var(--terracotta-deep)); border-color:transparent; color:var(--sand-soft); box-shadow:0 12px 30px -10px #c0856666}
   .pill.primary:hover{filter:brightness(1.08)}
   .pill.sage{background:linear-gradient(160deg, var(--sage), var(--sage-deep)); border-color:transparent; color:var(--sand-soft); box-shadow:0 12px 30px -10px #5d7a5a66}
   .pill.sage:hover{filter:brightness(1.08)}
+  /* selected pose — soft active ring like the sidebar's active video icon */
+  .pill::before{
+    content:""; position:absolute; inset:-3px; border-radius:inherit;
+    background:radial-gradient(circle at 50% 50%, #c0856655, transparent 70%);
+    opacity:0; transform:scale(.85);
+    transition:opacity 1.6s var(--breath), transform 1.6s var(--breath);
+    pointer-events:none; z-index:-1;
+  }
+  .pill.active::before{opacity:1; transform:scale(1)}
+  .pill.active{box-shadow:0 0 0 1px rgba(240,217,184,.35), 0 18px 40px -8px #c0856688}
+  /* gentle press-ripple */
+  .pill .ripple, .ctrl-btn .ripple{
+    position:absolute; border-radius:50%; pointer-events:none;
+    background:radial-gradient(circle, rgba(240,217,184,.35), transparent 70%);
+    transform:translate(-50%,-50%) scale(0); opacity:0;
+  }
+  .pill .ripple.go, .ctrl-btn .ripple.go{
+    animation:ripple 1.4s var(--breath) forwards;
+  }
+  @keyframes ripple{
+    0%  {opacity:.55; transform:translate(-50%,-50%) scale(0)}
+    100%{opacity:0;   transform:translate(-50%,-50%) scale(2.2)}
+  }
+  .ctrl-btn{position:relative; overflow:hidden}
+  .pill{position:relative; overflow:hidden}
 
   /* ───────── floating control bar ───────── */
   .controls{
@@ -225,18 +252,38 @@
     display:flex; align-items:center; justify-content:center;
     transition: background 1.6s var(--breath), border-color 1.6s var(--breath), transform 1.6s var(--breath);
   }
-  .ctrl-btn:hover{background:rgba(192,133,102,.18); border-color:rgba(192,133,102,.4)}
+  .ctrl-btn:hover{background:rgba(192,133,102,.18); border-color:rgba(192,133,102,.4); transform:translateY(-1px)}
+  .ctrl-btn:active{transform:translateY(0) scale(.92); transition-duration:.4s}
+  .ctrl-btn:focus-visible{outline:none; box-shadow:0 0 0 2px rgba(232,217,185,.15), 0 0 0 4px rgba(192,133,102,.45)}
   .ctrl-btn.muted{background:rgba(192,133,102,.2)}
+  .ctrl-btn.active-speak{background:rgba(192,133,102,.18); box-shadow:0 0 0 1px rgba(240,217,184,.3), 0 0 24px -4px #c0856699}
   .ctrl-btn svg{width:24px; height:24px}
+  /* waveform icon — 4 bars that breathe when speaking */
+  .icon-wave rect{transform-origin:center; transform-box:fill-box; transform:scaleY(.35); transition:transform 1.6s var(--breath)}
+  .ctrl-btn.active-speak .icon-wave rect{animation:waveBreath 1.4s var(--breath) infinite}
+  .ctrl-btn.active-speak .icon-wave rect:nth-child(1){animation-delay:0s}
+  .ctrl-btn.active-speak .icon-wave rect:nth-child(2){animation-delay:.18s}
+  .ctrl-btn.active-speak .icon-wave rect:nth-child(3){animation-delay:.36s}
+  .ctrl-btn.active-speak .icon-wave rect:nth-child(4){animation-delay:.12s}
+  @keyframes waveBreath{0%,100%{transform:scaleY(.35)} 50%{transform:scaleY(1)}}
   .ctrl-time{font-family:'Cormorant Garamond', serif; font-size:14px; color:var(--muted-text); padding:0 6px; min-width:90px; text-align:center; letter-spacing:.05em}
   .ctrl-end{
+    position:relative;
     appearance:none; border:1px solid rgba(192,133,102,.4);
     background:rgba(192,133,102,.1); color:var(--sand-soft);
     padding:10px 18px; border-radius:999px; cursor:pointer;
     font-size:11px; letter-spacing:.3em; text-transform:uppercase;
-    transition: all 1.6s var(--breath);
+    transition: background 1.6s var(--breath), border-color 1.6s var(--breath), transform 1.6s var(--breath), box-shadow 1.6s var(--breath), color 1.6s var(--breath);
+    overflow:hidden;
   }
-  .ctrl-end:hover{background:rgba(154,93,63,.4)}
+  .ctrl-end:hover{
+    background:linear-gradient(160deg, rgba(192,86,86,.55), rgba(150,60,60,.55));
+    border-color:rgba(220,120,120,.6);
+    box-shadow:0 0 0 1px rgba(220,120,120,.25), 0 16px 40px -10px rgba(180,70,70,.5);
+    color:#fff5ef;
+  }
+  .ctrl-end:active{transform:scale(.97); transition-duration:.4s}
+  .ctrl-end:focus-visible{outline:none; box-shadow:0 0 0 2px rgba(232,217,185,.15), 0 0 0 4px rgba(220,120,120,.5)}
 
   /* ───────── FAQ trigger ───────── */
   .faq-btn{
@@ -251,8 +298,39 @@
     transition: all 1.6s var(--breath);
     display:flex; align-items:center; gap:10px;
   }
-  .faq-btn:hover{transform:translateY(-2px); filter:brightness(1.1)}
-  .faq-btn .pulse{width:6px; height:6px; border-radius:50%; background:var(--sand-soft); animation:breathDot 4s var(--breath) infinite}
+  .faq-btn:hover{transform:translateY(-2px); filter:brightness(1.1); box-shadow:0 22px 48px -10px #c0856688}
+  .faq-btn:active{transform:translateY(0) scale(.97); transition-duration:.4s}
+  .faq-btn:focus-visible{outline:none; box-shadow:0 0 0 2px rgba(232,217,185,.15), 0 0 0 4px rgba(192,133,102,.5)}
+  .faq-btn .pulse{width:6px; height:6px; border-radius:50%; background:var(--sand-soft); animation:breathDot 4s var(--breath) infinite; box-shadow:0 0 8px var(--sand-soft)}
+  .faq-btn .arrow{display:inline-block; transition:transform 1.6s var(--breath), opacity 1.6s var(--breath); opacity:0; transform:translateX(-4px); width:0; overflow:hidden}
+  .faq-btn:hover .arrow{opacity:1; transform:translateX(0); width:14px}
+
+  /* ───────── close button — softly rotates on hover ───────── */
+  #closeVideoBtn{transition: background 1.6s var(--breath), transform 1.6s var(--breath), border-color 1.6s var(--breath)!important}
+  #closeVideoBtn:hover{transform:rotate(90deg); border-color:rgba(240,230,210,.7)}
+  #closeVideoBtn:active{transform:rotate(90deg) scale(.92); transition-duration:.4s}
+
+  /* ───────── brand mark — intensifies on hover ───────── */
+  .brand{cursor:default}
+  .brand-mark{transition:transform 1.6s var(--breath), box-shadow 1.6s var(--breath), filter 1.6s var(--breath)}
+  .brand:hover .brand-mark{transform:scale(1.12); filter:brightness(1.15); box-shadow: 0 0 50px -5px #c0856699, inset 0 0 20px #00000022}
+
+  /* ───────── unmute hint — soft attention pulse ───────── */
+  #unmuteHint{transition:background 1.6s var(--breath), transform 1.6s var(--breath), box-shadow 1.6s var(--breath)}
+  #unmuteHint:hover{background:rgba(40,32,24,.95); transform:translate(-50%,-50%) scale(1.05); box-shadow:0 12px 40px -10px #c0856666}
+  @keyframes hintPulse{0%,100%{box-shadow:0 0 0 0 rgba(232,217,185,.35)} 50%{box-shadow:0 0 0 14px rgba(232,217,185,0)}}
+  #unmuteHint{animation:hintPulse 3s var(--breath) infinite}
+
+  /* ───────── active-speaker halo around avatar (corner card) ───────── */
+  .small-avatar{transition: box-shadow 1.6s var(--breath), border-color 1.6s var(--breath)}
+  .small-avatar.speaking{
+    border-color:rgba(240,217,184,.4);
+    box-shadow:
+      0 0 0 1px rgba(240,217,184,.3),
+      0 0 0 6px rgba(192,133,102,.18),
+      0 0 38px -4px #c0856699,
+      0 24px 60px -10px #000000cc;
+  }
 
   /* ───────── intro overlay ───────── */
   #videoOverlay{
@@ -430,9 +508,9 @@
 
   <!-- pose ribbon -->
   <div class="ribbon rise rise-4">
-    <button class="pill primary" onclick="playTadasana()">Tadasana</button>
-    <button class="pill sage"    onclick="playVrikshasana()">Vrikshasana</button>
-    <button class="pill"         onclick="repeatPose()">Repeat</button>
+    <button class="pill primary" data-pose="tadasana"    onclick="playTadasana()">Tadasana</button>
+    <button class="pill sage"    data-pose="vrikshasana" onclick="playVrikshasana()">Vrikshasana</button>
+    <button class="pill"                                  onclick="repeatPose()">Repeat</button>
   </div>
 </main>
 
@@ -456,8 +534,13 @@
     </svg>
   </button>
   <span class="ctrl-time serif">15:00</span>
-  <button class="ctrl-btn" onclick="toggleSpeak()" aria-label="Demo: toggle speaking aura" title="Demo speaking aura">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2l3-7 4 14 3-9 2 4h4"/></svg>
+  <button class="ctrl-btn" id="speakBtn" onclick="toggleSpeak()" aria-label="Demo: toggle speaking aura" title="Demo speaking aura">
+    <svg class="icon-wave" viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="4"  y="6" width="2.6" height="12" rx="1.3" fill="#e8d9b9"/>
+      <rect x="9"  y="6" width="2.6" height="12" rx="1.3" fill="#e8d9b9"/>
+      <rect x="14" y="6" width="2.6" height="12" rx="1.3" fill="#e8d9b9"/>
+      <rect x="19" y="6" width="2.6" height="12" rx="1.3" fill="#e8d9b9"/>
+    </svg>
   </button>
   <button class="ctrl-end" onclick="endSession()">End Session</button>
 </div>
@@ -466,6 +549,7 @@
 <button class="faq-btn" id="faqBtn" onclick="openFAQ()">
   <span class="pulse"></span>
   Ask Your Guide
+  <svg class="arrow" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 5h12M9 1l4 4-4 4"/></svg>
 </button>
 
 <!-- INTRO VIDEO MODAL (preserved auto-play / mute fallback / auto-hide on end) -->
@@ -532,9 +616,15 @@
   };
   let currentPose = "tadasana";
 
-  function playTadasana()    { currentPose = "tadasana";    playVideo(); }
-  function playVrikshasana() { currentPose = "vrikshasana"; playVideo(); }
+  function playTadasana()    { currentPose = "tadasana";    setActivePill('tadasana');    playVideo(); }
+  function playVrikshasana() { currentPose = "vrikshasana"; setActivePill('vrikshasana'); playVideo(); }
   function repeatPose()      { playVideo(); }
+
+  function setActivePill(pose){
+    document.querySelectorAll('.ribbon .pill').forEach(b => b.classList.remove('active'));
+    const btn = document.querySelector(`.ribbon .pill[data-pose="${pose}"]`);
+    if (btn) btn.classList.add('active');
+  }
 
   function playVideo() {
     const player          = document.getElementById("videoPlayer");
@@ -585,7 +675,9 @@
     videoContainer.classList.remove('show');
     avatar.classList.remove('show');
     avatar.classList.remove('small-avatar');
+    avatar.classList.remove('speaking');
     setSpeaking(false);
+    document.querySelectorAll('.ribbon .pill').forEach(b => b.classList.remove('active'));
     // restore stillness
     requestAnimationFrame(() => idleSlot.classList.add('show'));
   }
@@ -606,6 +698,8 @@
   function setSpeaking(active) {
     aura.classList.toggle('active', !!active);
     frame.classList.toggle('speaking', !!active);
+    document.getElementById('speakBtn')?.classList.toggle('active-speak', !!active);
+    document.getElementById('avatarContainer')?.classList.toggle('speaking', !!active);
     if (!active) aura.style.removeProperty('--speak');
   }
   // Demo toggle
@@ -619,6 +713,25 @@
     aura.classList.toggle('active', false);  // stop autonomous loop while driven
     frame.classList.toggle('speaking', v > 0.05);
   };
+
+  /* ---------- soft press-ripple on every button ---------- */
+  document.addEventListener('pointerdown', (e) => {
+    const btn = e.target.closest('.pill, .ctrl-btn, .faq-btn, .ctrl-end, #closeVideoBtn');
+    if (!btn) return;
+    const r = btn.getBoundingClientRect();
+    const dot = document.createElement('span');
+    dot.className = 'ripple';
+    const size = Math.max(r.width, r.height);
+    dot.style.width = dot.style.height = size + 'px';
+    dot.style.left = (e.clientX - r.left) + 'px';
+    dot.style.top  = (e.clientY - r.top)  + 'px';
+    btn.appendChild(dot);
+    requestAnimationFrame(() => dot.classList.add('go'));
+    setTimeout(() => dot.remove(), 1500);
+  });
+
+  /* ---------- ensure faq-btn / ctrl-end can host the ripple ---------- */
+  document.querySelectorAll('.faq-btn, .ctrl-end').forEach(b => { b.style.position = b.style.position || 'relative'; b.style.overflow = 'hidden'; });
 </script>
 </body>
 </html>
