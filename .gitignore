@@ -28,3 +28,7 @@ venv/
 
 # Claude local settings/skills
 .claude/
+
+# Playwright MCP scratch + ad-hoc test screenshots
+.playwright-mcp/
+test-*.png
