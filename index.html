@@ -59,26 +59,18 @@
 
   /* ─────────────────────────────────────────────────────
      Background — soft, soothing stock photograph
-     warm tint overlay keeps it grounded with the palette
+     1600w/q70 trims ~65% off the original 2400w/q80 payload
      ───────────────────────────────────────────────────── */
   .bg{
     position:fixed; inset:0; z-index:0; pointer-events:none;
     background-image:
-      /* warm tint that settles the photo into the earthy palette */
       linear-gradient(180deg, rgba(20,16,11,.78) 0%, rgba(28,21,16,.86) 50%, rgba(20,16,11,.92) 100%),
-      /* soothing photo (sun-warmed misty forest) */
-      url("https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=2400&q=80");
+      url("https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1600&q=70");
     background-size: cover, cover;
     background-position: center, center;
     background-repeat: no-repeat, no-repeat;
-    background-color: #1c1510;  /* fallback if image fails */
+    background-color: #1c1510;
   }
-  /* gentle slow drift on the photo so it feels alive */
-  @keyframes bgDrift {
-    0%,100% { background-position: center, 50% 48%; }
-    50%     { background-position: center, 48% 52%; }
-  }
-  .bg{ animation: bgDrift 60s var(--breath) infinite; }
   /* SVG grain — 2.5% opacity, fine tooth */
   .grain{
     position:fixed; inset:0; z-index:1; pointer-events:none;
@@ -238,7 +230,10 @@
       inset 0 0 0 1px rgba(249,240,224,.04),
       0 30px 80px -20px rgba(20,16,11,.85),
       0 8px 24px -8px rgba(209,138,100,.18);
-    transition: box-shadow var(--t-med) var(--ease), transform var(--t-slow) var(--breath);
+    transition: box-shadow var(--t-med) var(--ease);
+    transform: translateZ(0);     /* promote to its own GPU layer */
+    will-change: box-shadow;
+    contain: layout paint;
   }
   .focus-frame.speaking{
     box-shadow:
@@ -303,54 +298,98 @@
   #videoContainer iframe{width:100%; height:100%; border:0}
 
   /* ─────────────────────────────────────────────────────
-     Pose buttons — secondary, ROUNDED (not pill)
+     Pose buttons — BRUTALIST
+     hard offset shadow, sharp 4px corners, slab labels
+     hover: shadow recedes, button presses into the surface,
+            colored fill sweeps up from below, label inverts
      ───────────────────────────────────────────────────── */
   .ribbon{
     margin:32px 0 0 8px;
-    display:flex; flex-wrap:wrap; gap:12px;
+    display:flex; flex-wrap:wrap; gap:18px;
     align-items:center;
   }
   .pose{
+    --b-bg:    var(--cream);
+    --b-fg:    var(--clay-deep);
+    --b-shadow:var(--terracotta);
+    --b-fill:  var(--terracotta);
+    --b-fill-fg: var(--cream);
+
     position:relative; overflow:hidden;
     appearance:none;
-    border:1px solid rgba(249,240,224,.10);
-    background:rgba(45,35,26,.4);
-    color:var(--cream);
-    font-family:'Inter', sans-serif; font-size:14px; font-weight:400;
-    letter-spacing:.005em;
+    isolation:isolate;
+    background:var(--b-bg);
+    color:var(--b-fg);
+    border:2px solid var(--clay-deep);
+    border-radius:4px;
     padding:13px 22px;
-    border-radius:var(--r-btn);
+    font-family:'Inter', sans-serif;
+    font-size:13px; font-weight:600;
+    letter-spacing:.06em;
+    text-transform:uppercase;
     cursor:pointer;
     display:inline-flex; align-items:center; gap:10px;
-    transition: background var(--t-med) var(--ease), border-color var(--t-med) var(--ease), transform var(--t-med) var(--ease), box-shadow var(--t-med) var(--ease), color var(--t-med) var(--ease);
+    box-shadow:6px 6px 0 0 var(--b-shadow);
+    transition:
+      transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1),
+      color 280ms cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
   }
-  .pose:hover{background:rgba(45,35,26,.7); border-color:rgba(209,138,100,.35); transform:translateY(-2px); box-shadow:0 14px 30px -10px rgba(209,138,100,.35)}
-  .pose:active{transform:translateY(0) scale(.98); transition-duration:160ms}
-  .pose:focus-visible{outline:none; box-shadow:0 0 0 2px rgba(28,21,16,1), 0 0 0 4px rgba(209,138,100,.5)}
-  .pose .glyph{width:6px; height:6px; border-radius:50%; background:currentColor; opacity:.45; transition:opacity var(--t-med) var(--ease), transform var(--t-med) var(--ease)}
-  .pose:hover .glyph{opacity:.9; transform:scale(1.3)}
+  /* sliding fill on hover */
+  .pose::after{
+    content:"";
+    position:absolute; inset:0;
+    background:var(--b-fill);
+    transform:translateY(101%);
+    transition:transform 380ms cubic-bezier(0.7, 0, 0.3, 1);
+    z-index:-1;
+  }
+  .pose > *{position:relative; z-index:1}
+  .pose:hover{
+    transform:translate(3px, 3px);
+    box-shadow:3px 3px 0 0 var(--b-shadow);
+    color:var(--b-fill-fg);
+  }
+  .pose:hover::after{transform:translateY(0)}
+  .pose:active{
+    transform:translate(6px, 6px);
+    box-shadow:0 0 0 0 var(--b-shadow);
+    transition-duration:80ms;
+  }
+  .pose:focus-visible{outline:none; box-shadow:6px 6px 0 0 var(--b-shadow), 0 0 0 3px var(--cream), 0 0 0 5px var(--terracotta)}
+  /* glyph: filled square instead of dot — brutalist tic */
+  .pose .glyph{
+    width:8px; height:8px; border-radius:0;
+    background:currentColor;
+    transition:transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .pose:hover .glyph{transform:rotate(45deg) scale(1.1)}
+  /* variants — primary keeps cream face, sage swaps shadow tint */
   .pose.primary{
-    background:linear-gradient(160deg, var(--terracotta), var(--terracotta-2));
-    border-color:transparent; color:var(--cream);
-    box-shadow:0 12px 28px -10px rgba(209,138,100,.55), inset 0 1px 0 rgba(249,240,224,.18);
+    --b-bg:    var(--terracotta);
+    --b-fg:    var(--clay-deep);
+    --b-shadow:var(--clay-deep);
+    --b-fill:  var(--clay-deep);
+    --b-fill-fg: var(--cream);
+    border-color:var(--clay-deep);
   }
-  .pose.primary:hover{filter:brightness(1.07); box-shadow:0 16px 36px -10px rgba(209,138,100,.7), inset 0 1px 0 rgba(249,240,224,.22)}
   .pose.sage{
-    background:linear-gradient(160deg, var(--sage), var(--sage-deep));
-    border-color:transparent; color:var(--cream);
-    box-shadow:0 12px 28px -10px rgba(110,133,105,.55), inset 0 1px 0 rgba(249,240,224,.18);
+    --b-bg:    var(--sage);
+    --b-fg:    var(--clay-deep);
+    --b-shadow:var(--clay-deep);
+    --b-fill:  var(--clay-deep);
+    --b-fill-fg: var(--cream);
+    border-color:var(--clay-deep);
   }
-  .pose.sage:hover{filter:brightness(1.07); box-shadow:0 16px 36px -10px rgba(110,133,105,.7), inset 0 1px 0 rgba(249,240,224,.22)}
-  /* selected — soft warm halo */
-  .pose::before{
-    content:""; position:absolute; inset:-3px; border-radius:inherit;
-    background:radial-gradient(circle, rgba(209,138,100,.4), transparent 70%);
-    opacity:0; transform:scale(.9);
-    transition:opacity var(--t-med) var(--ease), transform var(--t-med) var(--ease);
-    pointer-events:none; z-index:-1;
+  /* selected — solid filled state (already inverted) */
+  .pose.active{
+    transform:translate(3px, 3px);
+    box-shadow:3px 3px 0 0 var(--b-shadow);
+    color:var(--b-fill-fg);
   }
-  .pose.active::before{opacity:1; transform:scale(1)}
-  .pose.active{box-shadow:0 0 0 1px rgba(249,240,224,.30), 0 18px 40px -8px rgba(209,138,100,.55)}
+  .pose.active::after{transform:translateY(0)}
+  .pose.active .glyph{transform:rotate(45deg) scale(1.1)}
 
   /* ripple */
   .ripple{
@@ -373,12 +412,14 @@
     z-index:40;
     display:flex; align-items:center; gap:12px;
     padding:8px 12px;
-    background:rgba(28,21,16,.40);
-    backdrop-filter:blur(12px) saturate(140%);
-    -webkit-backdrop-filter:blur(12px) saturate(140%);
+    background:rgba(28,21,16,.55);
+    -webkit-backdrop-filter:blur(8px) saturate(130%);
+    backdrop-filter:blur(8px) saturate(130%);
     border:1px solid rgba(249,240,224,.10);
     border-radius:var(--r-pill);
     box-shadow:0 22px 50px -12px rgba(20,16,11,.7);
+    will-change: transform;
+    contain: layout paint;
   }
   .ctrl-btn{
     position:relative; overflow:hidden;
@@ -517,6 +558,8 @@
   .lotus-svg .core   {animation:coreBreath  6s var(--breath) infinite}
   .lotus-svg .halo   {animation:haloBreath  6s var(--breath) infinite}
   .lotus-svg .halo-2 {animation:haloBreath2 6s var(--breath) 1s infinite}
+  /* pause lotus + ambient orbs while idle is hidden — saves paint cycles */
+  .idle.fade:not(.show) .lotus-svg *{animation-play-state:paused}
 
   /* ─────────────────────────────────────────────────────
      Reduced motion + responsive
@@ -583,7 +626,7 @@
             <stop offset="100%" stop-color="#f9f0e000"/>
           </radialGradient>
           <filter id="auraBlur" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="22"/>
+            <feGaussianBlur in="SourceGraphic" stdDeviation="14"/>
           </filter>
         </defs>
         <rect width="800" height="500" fill="url(#auraGlow)" filter="url(#auraBlur)"
@@ -645,14 +688,14 @@
   </div>
 
   <div class="ribbon rise rise-4">
-    <button class="pose primary" data-pose="tadasana"    onclick="playTadasana()">
-      <span class="glyph"></span>Tadasana
+    <button class="pose primary" data-pose="tadasana"    onclick="playTadasana()" aria-label="Begin Tadasana, Mountain Pose">
+      <span class="glyph"></span><span>Mountain&nbsp;Pose</span>
     </button>
-    <button class="pose sage"    data-pose="vrikshasana" onclick="playVrikshasana()">
-      <span class="glyph"></span>Vrikshasana
+    <button class="pose sage"    data-pose="vrikshasana" onclick="playVrikshasana()" aria-label="Begin Vrikshasana, Tree Pose">
+      <span class="glyph"></span><span>Tree&nbsp;Pose</span>
     </button>
-    <button class="pose"                                  onclick="repeatPose()">
-      <span class="glyph"></span>Repeat
+    <button class="pose"                                  onclick="repeatPose()" aria-label="Repeat current pose">
+      <span class="glyph"></span><span>Repeat</span>
     </button>
   </div>
 </main>
