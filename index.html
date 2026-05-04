@@ -58,18 +58,27 @@
   }
 
   /* ─────────────────────────────────────────────────────
-     Background — multi-layered mesh + grain
-     diffused dawn light, not a cave
+     Background — soft, soothing stock photograph
+     warm tint overlay keeps it grounded with the palette
      ───────────────────────────────────────────────────── */
   .bg{
     position:fixed; inset:0; z-index:0; pointer-events:none;
-    background:
-      radial-gradient(60% 50% at 18% 22%, rgba(168,186,160,.16), transparent 60%),
-      radial-gradient(50% 40% at 82% 26%, rgba(209,138,100,.20), transparent 65%),
-      radial-gradient(70% 50% at 50% 110%, rgba(217,197,164,.14), transparent 65%),
-      radial-gradient(40% 30% at 8% 90%, rgba(110,133,105,.12), transparent 70%),
-      linear-gradient(180deg, #1f1812 0%, #2a201a 60%, #1c1510 100%);
+    background-image:
+      /* warm tint that settles the photo into the earthy palette */
+      linear-gradient(180deg, rgba(20,16,11,.78) 0%, rgba(28,21,16,.86) 50%, rgba(20,16,11,.92) 100%),
+      /* soothing photo (sun-warmed misty forest) */
+      url("https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=2400&q=80");
+    background-size: cover, cover;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
+    background-color: #1c1510;  /* fallback if image fails */
   }
+  /* gentle slow drift on the photo so it feels alive */
+  @keyframes bgDrift {
+    0%,100% { background-position: center, 50% 48%; }
+    50%     { background-position: center, 48% 52%; }
+  }
+  .bg{ animation: bgDrift 60s var(--breath) infinite; }
   /* SVG grain — 2.5% opacity, fine tooth */
   .grain{
     position:fixed; inset:0; z-index:1; pointer-events:none;
