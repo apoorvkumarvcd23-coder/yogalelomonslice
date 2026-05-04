@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Stillwater · Abyssal Glass</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="module" src="https://unpkg.com/@lemonsliceai/lemon-slice-widget"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --teal-deep:#0a1f2c; --teal:#0f3a45; --teal-bright:#2c7a7b; --seafoam:#7fd3c2; }
+  html,body,#root{height:100%}
+  body{font-family:'Inter',sans-serif;background:radial-gradient(ellipse at top,#0f3a45 0%,#06121a 60%,#03080d 100%);color:#e6f4f1;overflow:hidden}
+  .serif{font-family:'Cormorant Garamond',serif;letter-spacing:.02em}
+  .glass{background:rgba(15,58,69,.35);backdrop-filter:blur(24px) saturate(140%);-webkit-backdrop-filter:blur(24px) saturate(140%);border:1px solid rgba(127,211,194,.18)}
+  .glow-ring{box-shadow:0 0 0 1px rgba(127,211,194,.25),0 0 80px -10px rgba(127,211,194,.35),0 30px 80px -20px rgba(0,0,0,.6)}
+  @keyframes breathe{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.7;transform:scale(1.02)}}
+  .breathe{animation:breathe 6s ease-in-out infinite}
+  @keyframes wave{0%{background-position:0 0}100%{background-position:200px 0}}
+  .wave-bar{background-image:linear-gradient(90deg,#7fd3c2 0%,#2c7a7b 50%,#7fd3c2 100%);background-size:200px 100%;animation:wave 4s linear infinite}
+  .lemon-corner lemon-slice-widget{width:200px!important;height:200px!important;display:block;border-radius:18px;overflow:hidden}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const {useState,useEffect,useRef} = React;
+
+const VIDEOS = {
+  tadasana:"https://www.youtube.com/embed/MdTEXIdHxpI",
+  vrikshasana:"https://www.youtube.com/embed/FuKBRfvLGj8"
+};
+
+function Icon({d,className=""}){return(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className}><path d={d}/></svg>)}
+
+function App(){
+  const [showIntro,setShowIntro]=useState(true);
+  const [muted,setMuted]=useState(false);
+  const [showAvatar,setShowAvatar]=useState(false);
+  const [pose,setPose]=useState(null);
+  const [playing,setPlaying]=useState(true);
+  const [progress,setProgress]=useState(32);
+  const introRef=useRef(null);
+
+  useEffect(()=>{
+    const v=introRef.current;if(!v)return;
+    v.muted=false;v.volume=1;
+    v.play().catch(()=>{v.muted=true;setMuted(true);v.play().catch(()=>{})});
+    const onEnd=()=>setShowIntro(false);
+    v.addEventListener('ended',onEnd);
+    const onClick=()=>{if(v.muted){v.muted=false;setMuted(false)}};
+    document.addEventListener('click',onClick);
+    return()=>{v.removeEventListener('ended',onEnd);document.removeEventListener('click',onClick)}
+  },[]);
+
+  const playPose=(p)=>setPose(p);
+  const repeat=()=>{if(pose){const t=pose;setPose(null);setTimeout(()=>setPose(t),50)}};
+  const openFAQ=()=>setShowAvatar(true);
+  const endSession=()=>{setPose(null);setShowAvatar(false)};
+
+  const avatarCorner = showAvatar && pose;
+
+  return(<>
+    {/* ambient orbs */}
+    <div className="pointer-events-none fixed inset-0 overflow-hidden">
+      <div className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-teal-500/10 blur-3xl breathe"/>
+      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] rounded-full bg-cyan-400/5 blur-3xl breathe" style={{animationDelay:'2s'}}/>
+    </div>
+
+    {/* top bar */}
+    <header className="fixed top-0 inset-x-0 z-30 flex items-center justify-between px-8 py-5">
+      <div className="flex items-center gap-3">
+        <div className="w-9 h-9 rounded-xl glass flex items-center justify-center">
+          <div className="w-3 h-3 rounded-full bg-teal-300 breathe"/>
+        </div>
+        <span className="serif text-xl tracking-wide">Stillwater</span>
+      </div>
+      <div className="hidden md:flex glass rounded-full px-5 py-2 text-xs uppercase tracking-[0.25em] text-teal-100/70">
+        <span>Session · Deep Sleep</span><span className="mx-3 text-teal-300/40">|</span><span>Duration · 15 min</span>
+      </div>
+    </header>
+
+    {/* main focus */}
+    <main className="relative z-10 h-full flex items-center justify-center px-6">
+      <div className="w-full max-w-4xl">
+        <div className="text-center mb-8">
+          <div className="text-[11px] uppercase tracking-[0.4em] text-teal-300/60 mb-3">Digital Sanctuary</div>
+          <h1 className="serif text-5xl md:text-6xl font-light text-teal-50">A Quiet Tide</h1>
+          <p className="mt-3 text-teal-200/60 text-sm">Your guide is preparing the stillness.</p>
+        </div>
+
+        <div className="relative glass glow-ring rounded-[28px] aspect-video overflow-hidden">
+          {pose ? (
+            <iframe className="absolute inset-0 w-full h-full" src={VIDEOS[pose]+"?autoplay=1"} allow="autoplay" allowFullScreen/>
+          ) : showAvatar && !avatarCorner ? (
+            <div className="absolute inset-0 flex items-center justify-center"><lemon-slice-widget agent-id="agent_77081533e48ba693"></lemon-slice-widget></div>
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center">
+                <div className="mx-auto w-24 h-24 rounded-full border border-teal-300/30 flex items-center justify-center breathe">
+                  <div className="w-12 h-12 rounded-full bg-teal-300/20"/>
+                </div>
+                <p className="mt-6 serif text-2xl text-teal-100/80">Begin when you're ready</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* pose chips */}
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <button onClick={()=>playPose('tadasana')} className="glass rounded-full px-5 py-2.5 text-sm hover:bg-teal-500/20 transition">🧘 Tadasana</button>
+          <button onClick={()=>playPose('vrikshasana')} className="glass rounded-full px-5 py-2.5 text-sm hover:bg-teal-500/20 transition">🌳 Vrikshasana</button>
+          <button onClick={repeat} className="glass rounded-full px-5 py-2.5 text-sm hover:bg-teal-500/20 transition">↻ Repeat</button>
+        </div>
+      </div>
+    </main>
+
+    {/* floating control bar */}
+    <div className="fixed bottom-6 inset-x-0 z-30 flex justify-center px-4">
+      <div className="glass rounded-full px-5 py-3 flex items-center gap-4 w-full max-w-2xl">
+        <button onClick={()=>setPlaying(!playing)} className="w-10 h-10 rounded-full bg-teal-300 text-teal-950 flex items-center justify-center hover:bg-teal-200">
+          {playing? <Icon d="M6 4h4v16H6zM14 4h4v16h-4z" className="w-4 h-4"/> : <Icon d="M5 3l14 9-14 9V3z" className="w-4 h-4"/>}
+        </button>
+        <div className="flex-1 h-1.5 rounded-full bg-teal-50/10 overflow-hidden">
+          <div className="h-full wave-bar rounded-full" style={{width:progress+'%'}}/>
+        </div>
+        <span className="text-xs tabular-nums text-teal-100/60">04:48 / 15:00</span>
+        <button onClick={()=>setMuted(!muted)} className="w-9 h-9 rounded-full glass flex items-center justify-center">
+          {muted? <Icon d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6" className="w-4 h-4"/> : <Icon d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 010 7.07" className="w-4 h-4"/>}
+        </button>
+        <button onClick={endSession} className="text-xs uppercase tracking-widest text-teal-200/70 hover:text-teal-100 px-3">End</button>
+      </div>
+    </div>
+
+    {/* FAQ trigger */}
+    <button onClick={openFAQ} className="fixed bottom-24 right-6 md:bottom-6 md:right-6 z-30 glass rounded-full px-4 py-2.5 text-xs uppercase tracking-widest hover:bg-teal-500/20 hidden md:inline-flex items-center gap-2" style={{display:avatarCorner?'none':undefined}}>
+      <span className="w-1.5 h-1.5 rounded-full bg-teal-300 breathe"/> Ask the Guide
+    </button>
+
+    {/* corner avatar */}
+    {avatarCorner && (
+      <div className="fixed bottom-24 right-6 z-40 lemon-corner glass rounded-2xl p-2">
+        <lemon-slice-widget agent-id="agent_77081533e48ba693"></lemon-slice-widget>
+      </div>
+    )}
+
+    {/* intro overlay */}
+    {showIntro && (
+      <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center" onClick={()=>{}}>
+        <div className="relative w-[90%] max-w-sm">
+          <button onClick={()=>setShowIntro(false)} className="absolute -top-12 right-0 w-9 h-9 rounded-full border-2 border-white/70 text-white">✕</button>
+          <video ref={introRef} playsInline className="w-full rounded-2xl shadow-2xl">
+            <source src="https://raw.githubusercontent.com/bikramjit-stillwater/Hardcoded-Video-F-Q-Agent-V2/main/yoga.mp4" type="video/mp4"/>
+          </video>
+          {muted && <button onClick={()=>{introRef.current.muted=false;setMuted(false)}} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/70 text-white border-2 border-white px-6 py-3 rounded-full text-sm">🔊 Tap to enable sound</button>}
+        </div>
+      </div>
+    )}
+  </>);
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

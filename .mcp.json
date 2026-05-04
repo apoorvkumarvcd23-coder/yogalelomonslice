@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "nakkas": {
+      "command": "npx",
+      "args": ["-y", "nakkas@latest"]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    }
+  }
+}

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="200">
+  <defs>
+    <linearGradient id="frameBg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#0a1320"/><stop offset="100%" stop-color="#040810"/></linearGradient>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#a8fffb"/><stop offset="100%" stop-color="#00e5ff"/></linearGradient>
+    <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceAlpha" stdDeviation="8" result="wideBlur"/><feGaussianBlur in="SourceAlpha" stdDeviation="4" result="midBlur"/><feGaussianBlur in="SourceAlpha" stdDeviation="2" result="tightBlur"/><feFlood flood-color="#00e5ff" result="color"/><feComposite in="color" in2="wideBlur" operator="in" result="wide"/><feComposite in="color" in2="midBlur" operator="in" result="mid"/><feComposite in="color" in2="tightBlur" operator="in" result="tight"/><feComponentTransfer in="tight" result="tightBoosted"><feFuncA type="linear" slope="4"/></feComponentTransfer><feMerge><feMergeNode in="wide"/><feMergeNode in="mid"/><feMergeNode in="tightBoosted"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceAlpha" stdDeviation="10" result="blur"/><feFlood flood-color="#00e5ff" result="color"/><feComposite in="color" in2="blur" operator="in" result="coloredGlow"/><feComponentTransfer in="coloredGlow" result="boosted"><feFuncA type="linear" slope="2"/></feComponentTransfer><feMerge><feMergeNode in="boosted"/><feMergeNode in="boosted"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <style>
+    @keyframes nakkas-text{from{opacity:0} 70%{opacity:1} to{opacity:1}}
+    .nakkas-text{animation:nakkas-text 1.6s cubic-bezier(.22,1,.36,1) both}
+    @keyframes cursor-blink{from{opacity:0} 50%{opacity:1} to{opacity:0}}
+    .cursor-blink{animation:cursor-blink 1s steps(2,end) 1.6s infinite both}
+    @keyframes sub-fade{from{opacity:0} to{opacity:1}}
+    .sub-fade{animation:sub-fade 1.2s ease-out 1.2s both}
+  </style>
+  <rect width="100%" height="100%" fill="#05080d"/>
+  <rect x="4" y="4" width="792" height="192" rx="12" ry="12" fill="url(#frameBg)" stroke="#0e2a3a" stroke-width="1.5"/>
+  <rect x="4" y="4" width="792" height="34" rx="12" ry="12" fill="#0a1622" stroke="#0e2a3a" stroke-width="1"/>
+  <circle cx="24" cy="21" r="6" fill="#ff5f56"/><circle cx="44" cy="21" r="6" fill="#ffbd2e"/><circle cx="64" cy="21" r="6" fill="#27c93f"/>
+  <text x="400" y="26" font-family="monospace" font-size="12" text-anchor="middle" fill="#5b7a8a">~/nakkas - bash</text>
+  <text x="30" y="78" class="sub-fade" font-family="monospace" font-size="13" fill="#3a5566">$ render --neon NAKKAS</text>
+  <g class="nakkas-text" filter="url(#softGlow)"><text x="400" y="140" font-family="Courier New, monospace" font-size="68" text-anchor="middle" fill="url(#textGrad)" style="letter-spacing:14px;font-weight:700">NAKKAS</text></g>
+  <g class="nakkas-text" filter="url(#neonGlow)"><text x="400" y="140" font-family="Courier New, monospace" font-size="68" text-anchor="middle" fill="#05080d00" stroke="#00e5ff" stroke-width="0.6" style="letter-spacing:14px;font-weight:700">NAKKAS</text></g>
+  <rect class="cursor-blink" x="600" y="105" width="10" height="38" fill="#00e5ff" filter="url(#softGlow)"/>
+  <text class="sub-fade" x="400" y="178" font-family="monospace" font-size="11" text-anchor="middle" fill="#3a8a99" style="letter-spacing:7px">S V G   R E N D E R   E N G I N E</text>
+</svg>

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
+  <defs>
+    <radialGradient id="lotusCore" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f0d9b8"/><stop offset="60%" stop-color="#c08566"/><stop offset="100%" stop-color="#9a5d3f00"/></radialGradient>
+    <linearGradient id="petalGrad" x1="50%" y1="0%" x2="50%" y2="100%"><stop offset="0%" stop-color="#e8d9b9"/><stop offset="100%" stop-color="#8aa583"/></linearGradient>
+    <filter id="softBloom" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blur"/><feFlood flood-color="#e8d9b9" result="color"/><feComposite in="color" in2="blur" operator="in" result="coloredGlow"/><feComponentTransfer in="coloredGlow" result="boosted"><feFuncA type="linear" slope="2"/></feComponentTransfer><feMerge><feMergeNode in="boosted"/><feMergeNode in="boosted"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <style>
+    .lotus, .core, .halo, .halo-2 { transform-origin: 120px 120px; transform-box: view-box; }
+    @keyframes lotusBreath { 0%,100%{transform:scale(0.85);opacity:.75} 50%{transform:scale(1.05);opacity:1} }
+    @keyframes coreBreath  { 0%,100%{transform:scale(0.6)} 50%{transform:scale(1.35)} }
+    @keyframes haloBreath  { 0%,100%{transform:scale(0.55);opacity:0} 50%{transform:scale(1.1);opacity:.5} }
+    @keyframes haloBreath2 { 0%,100%{transform:scale(0.4);opacity:0} 50%{transform:scale(1.25);opacity:.35} }
+    .lotus  { animation: lotusBreath 6s cubic-bezier(0.45,0,0.55,1) infinite; }
+    .core   { animation: coreBreath  6s cubic-bezier(0.45,0,0.55,1) infinite; }
+    .halo   { animation: haloBreath  6s cubic-bezier(0.45,0,0.55,1) infinite; }
+    .halo-2 { animation: haloBreath2 6s cubic-bezier(0.45,0,0.55,1) 1s infinite; }
+  </style>
+  <circle cx="120" cy="120" r="90" class="halo" fill="#c0856611"/>
+  <circle cx="120" cy="120" r="70" class="halo-2" fill="#c0856622"/>
+  <g class="lotus">
+    <ellipse cx="120" cy="78" rx="22" ry="50" fill="url(#petalGrad)" opacity="0.85" transform="rotate(0 120 120)"/>
+    <ellipse cx="120" cy="78" rx="22" ry="50" fill="url(#petalGrad)" opacity="0.75" transform="rotate(45 120 120)"/>
+    <ellipse cx="120" cy="78" rx="22" ry="50" fill="url(#petalGrad)" opacity="0.85" transform="rotate(90 120 120)"/>
+    <ellipse cx="120" cy="78" rx="22" ry="50" fill="url(#petalGrad)" opacity="0.75" transform="rotate(135 120 120)"/>
+    <ellipse cx="120" cy="78" rx="22" ry="50" fill="url(#petalGrad)" opacity="0.85" transform="rotate(180 120 120)"/>
+    <ellipse cx="120" cy="78" rx="22" ry="50" fill="url(#petalGrad)" opacity="0.75" transform="rotate(225 120 120)"/>
+    <ellipse cx="120" cy="78" rx="22" ry="50" fill="url(#petalGrad)" opacity="0.85" transform="rotate(270 120 120)"/>
+    <ellipse cx="120" cy="78" rx="22" ry="50" fill="url(#petalGrad)" opacity="0.75" transform="rotate(315 120 120)"/>
+  </g>
+  <circle cx="120" cy="120" r="18" class="core" fill="url(#lotusCore)" filter="url(#softBloom)"/>
+</svg>

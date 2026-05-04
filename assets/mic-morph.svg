@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="micGrad" x1="50%" y1="0%" x2="50%" y2="100%"><stop offset="0%" stop-color="#f0e6d2"/><stop offset="100%" stop-color="#c08566"/></linearGradient>
+  </defs>
+  <style>
+    .mic-slash { stroke-dasharray: 60; stroke-dashoffset: 60; transition: stroke-dashoffset 1.6s cubic-bezier(0.45,0,0.55,1); }
+    .mic-body { transition: opacity 1.6s cubic-bezier(0.45,0,0.55,1); }
+    .muted .mic-slash { stroke-dashoffset: 0; }
+    .muted .mic-body  { opacity: 0.45; }
+  </style>
+  <g class="mic-body">
+    <rect x="24" y="14" width="16" height="28" rx="8" ry="8" fill="url(#micGrad)"/>
+    <path d="M 18 32 a 14 14 0 0 0 28 0" fill="none" stroke="#e8d9b9" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="32" y1="46" x2="32" y2="54" stroke="#e8d9b9" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="24" y1="54" x2="40" y2="54" stroke="#e8d9b9" stroke-width="2.4" stroke-linecap="round"/>
+  </g>
+  <line x1="14" y1="12" x2="50" y2="52" class="mic-slash" stroke="#c08566" stroke-width="3" stroke-linecap="round"/>
+</svg>
