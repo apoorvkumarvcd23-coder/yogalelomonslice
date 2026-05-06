@@ -682,7 +682,8 @@
       </div>
 
       <div id="videoContainer">
-        <iframe id="videoPlayer" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        <!-- YT.Player will swap this <div> for an <iframe> -->
+        <div id="videoPlayer"></div>
       </div>
     </div>
   </div>
@@ -778,7 +779,11 @@
     introVideo.pause();
     setTimeout(() => { overlay.style.display = 'none'; }, 1400);
   }
-  introVideo.addEventListener('ended', hideIntroVideo);
+  introVideo.addEventListener('ended', () => {
+    hideIntroVideo();
+    // kick off the guided auto-chain after intro finishes
+    setTimeout(autoStartChain, 600);
+  });
   document.addEventListener('click', function () {
     if (introVideo.muted && !overlay.classList.contains('hidden')) {
       introVideo.muted = false;
@@ -787,15 +792,100 @@
   });
   window.addEventListener('load', startIntroVideo);
 
-  const videos = {
-    tadasana:    "https://www.youtube.com/embed/MdTEXIdHxpI",
-    vrikshasana: "https://www.youtube.com/embed/FuKBRfvLGj8"
+  /* ───── YouTube IFrame API + guided auto-chain ───── */
+  const videoIds = {
+    tadasana:    "MdTEXIdHxpI",
+    vrikshasana: "FuKBRfvLGj8"
   };
-  let currentPose = "tadasana";
+  const POSE_ORDER = ['tadasana', 'vrikshasana'];
 
-  function playTadasana()    { currentPose = "tadasana";    setActivePill('tadasana');    playVideo(); }
-  function playVrikshasana() { currentPose = "vrikshasana"; setActivePill('vrikshasana'); playVideo(); }
-  function repeatPose()      { playVideo(); }
+  let ytPlayer = null;
+  let ytApiReady = false;
+  let pendingPose = null;     // queued pose if API isn't ready yet
+  let currentPose = null;
+  let autoChainOn = true;     // false once user takes manual control or chain finishes
+  let autoFaqDone = false;    // FAQ auto-opens only once at chain end
+
+  // load the YT IFrame API
+  (function loadYTApi() {
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+  })();
+
+  window.onYouTubeIframeAPIReady = function() {
+    ytApiReady = true;
+    if (pendingPose) {
+      const p = pendingPose; pendingPose = null;
+      _startPose(p);
+    }
+  };
+
+  function _startPose(pose) {
+    if (!videoIds[pose]) return;
+    currentPose = pose;
+    setActivePill(pose);
+
+    const idleSlot       = document.getElementById('idleSlot');
+    const videoContainer = document.getElementById('videoContainer');
+    const avatar         = document.getElementById('avatarContainer');
+
+    idleSlot.classList.remove('show');
+    videoContainer.classList.add('show');
+
+    if (!ytApiReady) { pendingPose = pose; return; }
+
+    if (!ytPlayer) {
+      // first time: ensure the placeholder div exists then create the player
+      videoContainer.innerHTML = '<div id="videoPlayer"></div>';
+      ytPlayer = new YT.Player('videoPlayer', {
+        videoId: videoIds[pose],
+        host: 'https://www.youtube.com',
+        playerVars: {
+          autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1, enablejsapi: 1
+        },
+        events: {
+          onReady: (e) => { try { e.target.playVideo(); } catch(_){} },
+          onStateChange: onYTStateChange
+        }
+      });
+    } else {
+      try { ytPlayer.loadVideoById(videoIds[pose]); } catch(_){}
+    }
+
+    if (avatar.classList.contains('show')) dockAvatarToCorner();
+  }
+
+  function onYTStateChange(e) {
+    // 0 = ENDED
+    if (e.data !== 0) return;
+    if (!autoChainOn) return;
+
+    const idx = POSE_ORDER.indexOf(currentPose);
+    if (idx === -1) return;
+
+    if (idx < POSE_ORDER.length - 1) {
+      _startPose(POSE_ORDER[idx + 1]);
+    } else {
+      // last pose finished → auto-open the guide
+      autoChainOn = false;
+      if (!autoFaqDone) {
+        autoFaqDone = true;
+        openFAQ();
+      }
+    }
+  }
+
+  function autoStartChain() {
+    if (!autoChainOn) return;          // user already took control
+    if (currentPose) return;           // something already playing
+    _startPose(POSE_ORDER[0]);
+  }
+
+  // Public, button-facing handlers — manual interaction halts the auto-chain
+  function playTadasana()    { autoChainOn = false; _startPose('tadasana'); }
+  function playVrikshasana() { autoChainOn = false; _startPose('vrikshasana'); }
+  function repeatPose()      { autoChainOn = false; if (currentPose) _startPose(currentPose); }
 
   function setActivePill(pose){
     document.querySelectorAll('.ribbon .pose').forEach(b => b.classList.remove('active'));
@@ -818,21 +908,8 @@
     document.body.classList.remove('guide-docked');
   }
 
-  function playVideo() {
-    const player          = document.getElementById("videoPlayer");
-    const videoContainer  = document.getElementById("videoContainer");
-    const idleSlot        = document.getElementById("idleSlot");
-    const avatar          = document.getElementById("avatarContainer");
-
-    idleSlot.classList.remove('show');
-    videoContainer.classList.add('show');
-    player.src = videos[currentPose] + "?autoplay=1";
-    if (avatar.classList.contains('show')) {
-      dockAvatarToCorner();
-    }
-  }
-
   function openFAQ() {
+    autoChainOn = false;       // user invoked guide manually → stop chain
     const avatar         = document.getElementById("avatarContainer");
     const idleSlot       = document.getElementById("idleSlot");
     const videoContainer = document.getElementById("videoContainer");
@@ -846,12 +923,13 @@
   }
 
   function endSession() {
-    const player         = document.getElementById("videoPlayer");
+    autoChainOn = false;
+    currentPose = null;
     const videoContainer = document.getElementById("videoContainer");
     const avatar         = document.getElementById("avatarContainer");
     const idleSlot       = document.getElementById("idleSlot");
 
-    player.src = "";
+    if (ytPlayer) { try { ytPlayer.stopVideo(); } catch(_){} }
     videoContainer.classList.remove('show');
     avatar.classList.remove('show');
     avatar.classList.remove('speaking');
