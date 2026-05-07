@@ -404,73 +404,100 @@
   }
 
   /* ─────────────────────────────────────────────────────
-     Floating control bar — pill (allowed: bottom mic bar)
-     light glass so the mesh+grain bleeds through
+     Floating control cluster — BRUTALIST tiles
+     individual cream slabs with 6px hard offset shadow
      ───────────────────────────────────────────────────── */
   .controls{
     position:fixed; bottom:30px; left:50%; transform:translateX(-50%);
     z-index:40;
-    display:flex; align-items:center; gap:12px;
-    padding:8px 12px;
-    background:rgba(28,21,16,.55);
-    -webkit-backdrop-filter:blur(8px) saturate(130%);
-    backdrop-filter:blur(8px) saturate(130%);
-    border:1px solid rgba(249,240,224,.10);
-    border-radius:var(--r-pill);
-    box-shadow:0 22px 50px -12px rgba(20,16,11,.7);
+    display:flex; align-items:center; gap:14px;
     will-change: transform;
     contain: layout paint;
   }
-  .ctrl-btn{
-    position:relative; overflow:hidden;
-    width:40px; height:40px; border-radius:50%;
-    border:1px solid rgba(249,240,224,.10);
-    background:rgba(249,240,224,.04);
-    color:var(--cream);
-    cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-    transition: background var(--t-med) var(--ease), border-color var(--t-med) var(--ease), transform var(--t-med) var(--ease), box-shadow var(--t-med) var(--ease);
-  }
-  .ctrl-btn:hover{background:rgba(209,138,100,.18); border-color:rgba(209,138,100,.4); transform:translateY(-1px)}
-  .ctrl-btn:active{transform:translateY(0) scale(.92); transition-duration:140ms}
-  .ctrl-btn:focus-visible{outline:none; box-shadow:0 0 0 2px rgba(28,21,16,1), 0 0 0 4px rgba(209,138,100,.5)}
-  .ctrl-btn.muted{background:rgba(209,138,100,.22)}
-  .ctrl-btn.active-speak{background:rgba(209,138,100,.18); box-shadow:0 0 0 1px rgba(249,240,224,.28), 0 0 22px -4px rgba(209,138,100,.65)}
-  .ctrl-btn svg{width:22px; height:22px}
 
-  .ctrl-time{
-    font-family:'Fraunces', serif; font-weight:500;
-    font-size:14px; color:var(--text-muted);
-    padding:0 8px; min-width:80px; text-align:center;
-    letter-spacing:.005em;
-    font-variant-numeric:tabular-nums;
-  }
-  .ctrl-end{
+  /* shared brutalist tile base for ctrl-btn / ctrl-time / ctrl-end / faq-btn */
+  .b-tile{
+    --b-bg:    var(--cream);
+    --b-fg:    var(--clay-deep);
+    --b-shadow:var(--terracotta);
+    --b-fill:  var(--terracotta);
+    --b-fill-fg: var(--cream);
     position:relative; overflow:hidden;
     appearance:none;
-    border:1px solid rgba(249,240,224,.12);
-    background:rgba(249,240,224,.04);
-    color:var(--cream);
-    padding:9px 16px; border-radius:var(--r-btn);
+    isolation:isolate;
+    background:var(--b-bg);
+    color:var(--b-fg);
+    border:2px solid var(--clay-deep);
+    border-radius:4px;
     cursor:pointer;
-    font-size:12px; letter-spacing:.02em;
-    transition: background var(--t-med) var(--ease), border-color var(--t-med) var(--ease), color var(--t-med) var(--ease), box-shadow var(--t-med) var(--ease), transform var(--t-med) var(--ease);
+    font-family:'Inter', sans-serif;
+    box-shadow:6px 6px 0 0 var(--b-shadow);
+    transition:
+      transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1),
+      color 280ms cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
   }
-  .ctrl-end:hover{
-    background:linear-gradient(160deg, rgba(192,80,80,.55), rgba(150,55,55,.55));
-    border-color:rgba(220,120,120,.5);
-    box-shadow:0 12px 30px -8px rgba(180,70,70,.5);
-    color:#fff5ef;
+  .b-tile::after{
+    content:""; position:absolute; inset:0;
+    background:var(--b-fill);
+    transform:translateY(101%);
+    transition:transform 380ms cubic-bezier(0.7, 0, 0.3, 1);
+    z-index:-1;
   }
-  .ctrl-end:active{transform:scale(.97); transition-duration:140ms}
+  .b-tile > *{position:relative; z-index:1}
+  .b-tile:hover{
+    transform:translate(3px, 3px);
+    box-shadow:3px 3px 0 0 var(--b-shadow);
+    color:var(--b-fill-fg);
+  }
+  .b-tile:hover::after{transform:translateY(0)}
+  .b-tile:active{
+    transform:translate(6px, 6px);
+    box-shadow:0 0 0 0 var(--b-shadow);
+    transition-duration:80ms;
+  }
+  .b-tile:focus-visible{outline:none; box-shadow:6px 6px 0 0 var(--b-shadow), 0 0 0 3px var(--cream), 0 0 0 5px var(--terracotta)}
 
-  /* mic icon morph */
+  /* mic / wave — 44x44 square tiles */
+  .ctrl-btn{
+    width:44px; height:44px;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .ctrl-btn svg{width:22px; height:22px}
+  /* the cream tile face shows mic in clay; on hover the terracotta sweeps and we want the icon to invert too */
+  .ctrl-btn .icon-mic .mic-body rect{fill:var(--clay-deep); transition:fill 280ms var(--ease)}
+  .ctrl-btn .icon-mic .mic-body path,
+  .ctrl-btn .icon-mic .mic-body line{stroke:var(--clay-deep); transition:stroke 280ms var(--ease)}
+  .ctrl-btn .icon-mic .mic-slash{stroke:var(--terracotta-deep)}
+  .ctrl-btn:hover .icon-mic .mic-body rect{fill:var(--cream)}
+  .ctrl-btn:hover .icon-mic .mic-body path,
+  .ctrl-btn:hover .icon-mic .mic-body line{stroke:var(--cream)}
+  .ctrl-btn .icon-wave rect{fill:var(--clay-deep); transition:fill 280ms var(--ease)}
+  .ctrl-btn:hover .icon-wave rect{fill:var(--cream)}
+
+  /* muted / active-speak states keep the brutalist skeleton, just shift the fill */
+  .ctrl-btn.muted{
+    --b-bg: var(--terracotta);
+    --b-fg: var(--clay-deep);
+    color:var(--b-fg);
+  }
+  .ctrl-btn.muted .icon-mic .mic-body rect{fill:var(--clay-deep)}
+  .ctrl-btn.muted .icon-mic .mic-body path,
+  .ctrl-btn.muted .icon-mic .mic-body line{stroke:var(--clay-deep)}
+  .ctrl-btn.active-speak{
+    --b-bg: var(--terracotta);
+    color:var(--clay-deep);
+  }
+  .ctrl-btn.active-speak .icon-wave rect{fill:var(--clay-deep)}
+
+  /* mic icon morph (slash dash) */
   .icon-mic .mic-slash{stroke-dasharray:60; stroke-dashoffset:60; transition:stroke-dashoffset var(--t-med) var(--ease)}
   .icon-mic .mic-body{transition:opacity var(--t-med) var(--ease)}
   .ctrl-btn.muted .icon-mic .mic-slash{stroke-dashoffset:0}
   .ctrl-btn.muted .icon-mic .mic-body{opacity:.5}
 
-  /* waveform icon */
+  /* waveform icon animation */
   .icon-wave rect{transform-origin:center; transform-box:fill-box; transform:scaleY(.32); transition:transform var(--t-med) var(--ease)}
   .ctrl-btn.active-speak .icon-wave rect{animation:wave 1.3s var(--breath) infinite}
   .ctrl-btn.active-speak .icon-wave rect:nth-child(1){animation-delay:0s}
@@ -479,30 +506,60 @@
   .ctrl-btn.active-speak .icon-wave rect:nth-child(4){animation-delay:.10s}
   @keyframes wave{0%,100%{transform:scaleY(.32)} 50%{transform:scaleY(1)}}
 
+  /* time slab — non-interactive cream tile w/ slab numerals */
+  .ctrl-time{
+    --b-bg: var(--cream);
+    cursor:default;
+    padding:10px 18px;
+    height:44px;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-family:'Fraunces', serif; font-weight:500;
+    font-size:18px; letter-spacing:.01em;
+    font-variant-numeric:tabular-nums;
+    min-width:96px; text-align:center;
+  }
+  /* time tile: no hover lift, no fill sweep — it's not a button */
+  .ctrl-time:hover{transform:none; box-shadow:6px 6px 0 0 var(--b-shadow); color:var(--b-fg)}
+  .ctrl-time:hover::after{transform:translateY(101%)}
+  .ctrl-time:active{transform:none; box-shadow:6px 6px 0 0 var(--b-shadow)}
+
+  /* End session — clay-deep face for destructive intent w/o screaming */
+  .ctrl-end{
+    --b-bg: var(--clay-deep);
+    --b-fg: var(--cream);
+    --b-shadow: var(--terracotta-deep);
+    --b-fill: #b34a4a;
+    --b-fill-fg: var(--cream);
+    border-color:var(--clay-deep);
+    padding:12px 22px;
+    height:44px;
+    font-size:13px; font-weight:600;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    display:inline-flex; align-items:center;
+  }
+
   /* ─────────────────────────────────────────────────────
-     FAQ — primary floating CTA (pill allowed)
+     FAQ — brutalist primary CTA (terracotta filled)
      ───────────────────────────────────────────────────── */
   .faq-btn{
     position:fixed; bottom:30px; right:30px; z-index:40;
-    overflow:hidden;
-    appearance:none;
-    border:1px solid rgba(249,240,224,.15);
-    background:linear-gradient(160deg, rgba(209,138,100,.85), rgba(138,74,44,.9));
-    color:var(--cream);
-    padding:13px 20px; border-radius:var(--r-pill);
-    cursor:pointer;
-    font-size:13px; font-weight:500; letter-spacing:.005em;
-    box-shadow:0 16px 36px -10px rgba(20,16,11,.7), 0 0 24px -4px rgba(209,138,100,.4), inset 0 1px 0 rgba(249,240,224,.2);
-    display:flex; align-items:center; gap:10px;
-    transition: transform var(--t-med) var(--ease), filter var(--t-med) var(--ease), box-shadow var(--t-med) var(--ease);
+    --b-bg:    var(--terracotta);
+    --b-fg:    var(--clay-deep);
+    --b-shadow:var(--clay-deep);
+    --b-fill:  var(--clay-deep);
+    --b-fill-fg: var(--cream);
+    border-color:var(--clay-deep);
+    padding:13px 22px;
+    height:48px;
+    font-size:13px; font-weight:600; letter-spacing:.06em;
+    text-transform:uppercase;
+    display:inline-flex; align-items:center; gap:10px;
   }
-  /* hide when guide is docked in the corner — they share that real estate */
+  /* hide when guide is docked in the corner */
   body.guide-docked .faq-btn{opacity:0; transform:translateY(20px); pointer-events:none}
-  .faq-btn:hover{transform:translateY(-2px); filter:brightness(1.08); box-shadow:0 22px 44px -10px rgba(20,16,11,.7), 0 0 32px -2px rgba(209,138,100,.55), inset 0 1px 0 rgba(249,240,224,.25)}
-  .faq-btn:active{transform:translateY(0) scale(.97); transition-duration:140ms}
-  .faq-btn:focus-visible{outline:none; box-shadow:0 0 0 2px rgba(28,21,16,1), 0 0 0 4px rgba(209,138,100,.55)}
-  .faq-btn .pulse{width:6px; height:6px; border-radius:50%; background:var(--cream); box-shadow:0 0 8px var(--cream); animation:pulseSoft 4s var(--breath) infinite}
-  @keyframes pulseSoft{0%,100%{opacity:.6} 50%{opacity:1}}
+  .faq-btn .pulse{width:8px; height:8px; border-radius:0; background:currentColor; transition:transform 280ms var(--ease)}
+  .faq-btn:hover .pulse{transform:rotate(45deg) scale(1.1)}
   .faq-btn .arrow{display:inline-block; transition:transform var(--t-med) var(--ease), opacity var(--t-med) var(--ease); opacity:0; transform:translateX(-4px); width:0; overflow:hidden}
   .faq-btn:hover .arrow{opacity:1; transform:translateX(0); width:14px}
 
@@ -573,9 +630,9 @@
     main{padding:90px 18px 140px}
     .title-wrap, .focus, .ribbon{margin-left:0}
     #avatarContainer.small-avatar{width:130px; height:130px; inset:auto 18px 90px auto!important}
-    .controls{bottom:18px; gap:8px; padding:6px 10px}
+    .controls{bottom:18px; gap:10px}
     .ctrl-time{display:none}
-    .faq-btn{padding:11px 16px; font-size:12px; bottom:auto; right:18px; top:18px}
+    .faq-btn{padding:11px 16px; font-size:12px; height:42px; bottom:auto; right:18px; top:18px}
   }
 </style>
 </head>
@@ -702,7 +759,7 @@
 </main>
 
 <div class="controls rise rise-4">
-  <button class="ctrl-btn" id="micBtn" onclick="toggleMic()" aria-label="Toggle microphone">
+  <button class="b-tile ctrl-btn" id="micBtn" onclick="toggleMic()" aria-label="Toggle microphone">
     <svg class="icon-mic" viewBox="0 0 64 64" aria-hidden="true">
       <defs>
         <linearGradient id="micGrad" x1="50%" y1="0%" x2="50%" y2="100%">
@@ -719,8 +776,8 @@
       <line x1="14" y1="12" x2="50" y2="52" class="mic-slash" stroke="#d18a64" stroke-width="3" stroke-linecap="round"/>
     </svg>
   </button>
-  <span class="ctrl-time">15:00</span>
-  <button class="ctrl-btn" id="speakBtn" onclick="toggleSpeak()" aria-label="Demo speaking aura">
+  <span class="b-tile ctrl-time">15:00</span>
+  <button class="b-tile ctrl-btn" id="speakBtn" onclick="toggleSpeak()" aria-label="Demo speaking aura">
     <svg class="icon-wave" viewBox="0 0 24 24" aria-hidden="true">
       <rect x="4"  y="6" width="2.6" height="12" rx="1.3" fill="#f9f0e0"/>
       <rect x="9"  y="6" width="2.6" height="12" rx="1.3" fill="#f9f0e0"/>
@@ -728,10 +785,10 @@
       <rect x="19" y="6" width="2.6" height="12" rx="1.3" fill="#f9f0e0"/>
     </svg>
   </button>
-  <button class="ctrl-end" onclick="endSession()">End session</button>
+  <button class="b-tile ctrl-end" onclick="endSession()">End session</button>
 </div>
 
-<button class="faq-btn" id="faqBtn" onclick="openFAQ()">
+<button class="b-tile faq-btn" id="faqBtn" onclick="openFAQ()">
   <span class="pulse"></span>
   Ask your guide
   <svg class="arrow" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 5h12M9 1l4 4-4 4"/></svg>
